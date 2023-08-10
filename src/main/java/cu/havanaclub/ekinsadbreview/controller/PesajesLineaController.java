@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +33,7 @@ public class PesajesLineaController {
     @Operation(summary = "Devuelve la cantidad de pesajes existentes en la base de datos.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "La consulta se ha realizado correctamente",
-                    content = { @Content(mediaType = "application/json") })
+                    content = {@Content(mediaType = "application/json")})
     })
     @GetMapping
     public ResponseEntity<Integer> listAllPesajes() {
@@ -40,13 +41,13 @@ public class PesajesLineaController {
         return ResponseEntity.ok(pesajesLineaList.size());
     }
 
-    @Operation(summary = "Devuelve la cantidad de entradas a partir de una fecha indicada que tienen problemas en las zonas." +
+    @Operation(summary = "Devuelve las entradas existentes en la base de datos a partir de una fecha inficada que tienen problemas en las zonas." +
             "Se tiene en cuenta que un parlet haya entrado por una zona y no haya salido o que la cantidad de entradas por las zonas" +
-            "difiere de las cuatro habituales (1,2,3,4). Este servicio también genera un fichero .csv con los elementos")
+            "difiere de las cuatro habituales (1,2,3,4). Este servicio también genera un fichero .csv con las entradas detectadas.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
-                    content = { @Content(mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = Searcher.class))) })
+                    content = {@Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = Searcher.class)))})
     })
     @GetMapping(value = "/pesajesErroresZonaAfterDate")
     public ResponseEntity<List<Searcher>> listAllPesajesWithZoneErrorsAfterADate() {
@@ -54,47 +55,7 @@ public class PesajesLineaController {
         java.sql.Date d = new java.sql.Date(millis);
 
         List<EkPesajesLinea> pesajesLineaAfterDateList = pesajesLineaService.lisAllPesajesAfterDate(d);
-        Map<String, Searcher> pesajesLineaMap = new HashMap<>();
-
-        for (EkPesajesLinea ekPesajesLinea : pesajesLineaAfterDateList) {
-            if (pesajesLineaMap.get(ekPesajesLinea.getTag()) == null) {
-                List<Integer> zones = new ArrayList<>();
-                zones.add(ekPesajesLinea.getIdZona());
-                List<Integer> weigths = new ArrayList<>();
-                weigths.add(ekPesajesLinea.getPeso());
-                List<Date> dates = new ArrayList<>();
-                dates.add(ekPesajesLinea.getFecha());
-                List<String> lotes = new ArrayList<>();
-                lotes.add(ekPesajesLinea.getNumeroLote());
-                pesajesLineaMap.put(ekPesajesLinea.getTag(),
-                        Searcher.builder()
-                                .zones(zones)
-                                .countEntries(1)
-                                .weigth(weigths)
-                                .dates(dates)
-                                .lotes(lotes)
-                                .tag(ekPesajesLinea.getTag())
-                                .build()
-                );
-            } else {
-                Searcher searched = pesajesLineaMap.get(ekPesajesLinea.getTag());
-                searched.setCountEntries(searched.getCountEntries() + 1);
-                List<Integer> zones = searched.getZones();
-                zones.add(ekPesajesLinea.getIdZona());
-                List<Integer> weigths = searched.getWeigth();
-                weigths.add(ekPesajesLinea.getPeso());
-                List<Date> dates = searched.getDates();
-                dates.add(ekPesajesLinea.getFecha());
-                List<String> lotes = searched.getLotes();
-                lotes.add(ekPesajesLinea.getNumeroLote());
-                searched.setZones(zones);
-                searched.setWeigth(weigths);
-                searched.setDates(dates);
-                searched.setLotes(lotes);
-                pesajesLineaMap.replace(ekPesajesLinea.getTag(), searched);
-            }
-        }
-
+        Map<String, Searcher> pesajesLineaMap = Searcher.obtainSearcherMap(pesajesLineaAfterDateList);
 
         pesajesLineaMap.entrySet().removeIf(entry -> Verifier.verifyZone(entry.getValue().getZones()));
 
@@ -103,10 +64,44 @@ public class PesajesLineaController {
         String formattedDate = formatter.format(now);
 
         try {
-            CsvWriter.writeToCsv(new ArrayList<>(pesajesLineaMap.values()), "Tags with Errors ", formattedDate);
+            CsvWriter.writeToCsv(new ArrayList<>(pesajesLineaMap.values()), "Tags with Errors ", "Errors in Zones", formattedDate);
         } catch (IOException e) {
-//            return ResponseEntity.ok(-1);
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
         }
         return ResponseEntity.ok(new ArrayList<>(pesajesLineaMap.values()));
+    }
+
+    @Operation(summary = "Devuelve las entradas existentes en la base de datos a partir de una fecha inficada que tienen problemas de cambio de lote." +
+            "Se tiene en cuenta que un parlet haya entrado por una línea (zona 1 por ejemplo) tenga un número de lote y que " +
+            "al salir por otra zona (zona 2 por ejemplo) tenga otro lote.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
+                    content = {@Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = Searcher.class)))})
+    })
+    @GetMapping(value = "/verifyErroresLotesAfterDate")
+    public ResponseEntity<List<Searcher>> listAllPesajesWithLoteErrors() {
+        long millis = Date.valueOf("2023-07-14").getTime();
+        java.sql.Date d = new java.sql.Date(millis);
+
+        List<EkPesajesLinea> pesajesLineaAfterDateList = pesajesLineaService.lisAllPesajesAfterDate(d);
+        Map<String, Searcher> pesajesLineaMap = Searcher.obtainSearcherMap(pesajesLineaAfterDateList);
+
+        pesajesLineaMap.entrySet().removeIf(entry -> Verifier.verifyLote(entry.getValue()));
+
+        java.util.Date now = new Date(System.currentTimeMillis());
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+        String formattedDate = formatter.format(now);
+
+        try {
+            CsvWriter.writeToCsv(new ArrayList<>(pesajesLineaMap.values()), "Tags with Errors ", "Errors in Lotes", formattedDate);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
+        }
+
+        return ResponseEntity.ok(new ArrayList<>(pesajesLineaMap.values()));
+
     }
 }

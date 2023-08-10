@@ -1,6 +1,9 @@
 package cu.havanaclub.ekinsadbreview.util;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Verifier {
@@ -39,5 +42,33 @@ public class Verifier {
             }
         }
         return line1 != 0 || line2 != 0;
+    }
+
+    public static boolean verifyLote(Searcher searcher) {
+        if (searcher.getLotes().size() % 2 != 0)
+            return true;
+        Map<String, Integer> lotesMap = new HashMap<>();
+        for (int i = 0; i < searcher.getZones().size(); i++) {
+            switch (searcher.getZones().get(i)) {
+                case 1:
+                case 3:
+                    if (lotesMap.get(searcher.getLotes().get(i)) == null)
+                        lotesMap.put(searcher.getLotes().get(i), 1);
+                    else
+                        lotesMap.replace(searcher.getLotes().get(i), lotesMap.get(searcher.getLotes().get(i)) + 1);
+                    break;
+                case 2:
+                case 4:
+                    if (lotesMap.get(searcher.getLotes().get(i)) == null)
+                        lotesMap.put(searcher.getLotes().get(i), -1);
+                    else if (lotesMap.get(searcher.getLotes().get(i)) == 1)
+                        lotesMap.remove(searcher.getLotes().get(i));
+                    else
+                        lotesMap.replace(searcher.getLotes().get(i), lotesMap.get(searcher.getLotes().get(i)) - 1);
+                    break;
+
+            }
+        }
+        return lotesMap.values().isEmpty();
     }
 }

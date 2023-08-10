@@ -1,0 +1,16 @@
+version: '0.2.0'
+services:
+  registry-service:
+    container_name: ekinsadb-review-v0.2.0
+    hostname: ekinsaDb-review-service
+    build:
+      context: ekinsadb-review-service
+      dockerfile: Dockerfile
+    image: ekinsadb-review-service:latest
+    ports:
+      - "8091:8091"
+    networks:
+      - public-network
+
+networks:
+  public-network:

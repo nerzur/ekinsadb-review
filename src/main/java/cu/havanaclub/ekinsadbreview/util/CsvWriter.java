@@ -6,8 +6,8 @@ import java.util.List;
 
 public class CsvWriter {
 
-    public static void writeToCsv(List<Searcher> searcherList, String header, String formattedDate) throws IOException {
-        PrintWriter writer = new PrintWriter("Errors " + formattedDate + ".csv");
+    public static void writeToCsv(List<Searcher> searcherList, String header, String filename, String formattedDate) throws IOException {
+        PrintWriter writer = new PrintWriter(filename + " " + formattedDate + ".csv");
         writer.println(header);
 
         for (Searcher searcher : searcherList) {
