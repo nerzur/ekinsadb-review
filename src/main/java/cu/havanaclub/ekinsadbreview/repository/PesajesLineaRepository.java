@@ -11,4 +11,6 @@ import java.util.List;
 public interface PesajesLineaRepository extends JpaRepository <EkPesajesLinea, String>{
 
     public List<EkPesajesLinea> findEkPesajesLineaByFechaAfterOrderByFecha(Date date);
+
+    public List<EkPesajesLinea> findEkPesajesLineaByTag(String tag);
 }

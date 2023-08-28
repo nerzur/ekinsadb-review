@@ -1,6 +1,6 @@
 version: '0.2.0'
 services:
-  registry-service:
+  ekinsadb-review:
     container_name: ekinsadb-review-v0.2.0
     hostname: ekinsaDb-review-service
     build:

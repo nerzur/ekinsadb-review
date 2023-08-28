@@ -2,7 +2,7 @@ package cu.havanaclub.ekinsadbreview.entity;
 
 import jakarta.persistence.*;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "EK_Pesajeslinea")
@@ -17,7 +17,7 @@ public class EkPesajesLinea {
     private String numeroLote;
     @Basic
     @Column(name = "Fecha", nullable = false)
-    private Date fecha;
+    private Timestamp fecha;
     @Basic
     @Column(name = "Tag", nullable = false, length = 16)
     private String tag;
@@ -44,11 +44,11 @@ public class EkPesajesLinea {
         this.numeroLote = numeroLote;
     }
 
-    public Date getFecha() {
+    public Timestamp getFecha() {
         return fecha;
     }
 
-    public void setFecha(Date fecha) {
+    public void setFecha(Timestamp fecha) {
         this.fecha = fecha;
     }
 

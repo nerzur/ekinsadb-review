@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
@@ -51,25 +52,17 @@ public class PesajesLineaController {
     })
     @GetMapping(value = "/pesajesErroresZonaAfterDate")
     public ResponseEntity<List<Searcher>> listAllPesajesWithZoneErrorsAfterADate() {
+
         long millis = Date.valueOf("2023-07-14").getTime();
         java.sql.Date d = new java.sql.Date(millis);
-
-        List<EkPesajesLinea> pesajesLineaAfterDateList = pesajesLineaService.lisAllPesajesAfterDate(d);
-        Map<String, Searcher> pesajesLineaMap = Searcher.obtainSearcherMap(pesajesLineaAfterDateList);
-
-        pesajesLineaMap.entrySet().removeIf(entry -> Verifier.verifyZone(entry.getValue().getZones()));
-
-        java.util.Date now = new Date(System.currentTimeMillis());
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-        String formattedDate = formatter.format(now);
-
+        List<Searcher> pesajesLineaMap = null;
         try {
-            CsvWriter.writeToCsv(new ArrayList<>(pesajesLineaMap.values()), "Tags with Errors ", "Errors in Zones", formattedDate);
+            pesajesLineaMap = pesajesLineaService.listAllPesajesWithZoneErrorsAfterADate(d);
+            return ResponseEntity.ok(new ArrayList<>(pesajesLineaMap));
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
         }
-        return ResponseEntity.ok(new ArrayList<>(pesajesLineaMap.values()));
     }
 
     @Operation(summary = "Devuelve las entradas existentes en la base de datos a partir de una fecha inficada que tienen problemas de cambio de lote." +
@@ -85,23 +78,24 @@ public class PesajesLineaController {
         long millis = Date.valueOf("2023-07-14").getTime();
         java.sql.Date d = new java.sql.Date(millis);
 
-        List<EkPesajesLinea> pesajesLineaAfterDateList = pesajesLineaService.lisAllPesajesAfterDate(d);
-        Map<String, Searcher> pesajesLineaMap = Searcher.obtainSearcherMap(pesajesLineaAfterDateList);
-
-        pesajesLineaMap.entrySet().removeIf(entry -> Verifier.verifyLote(entry.getValue()));
-
-        java.util.Date now = new Date(System.currentTimeMillis());
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-        String formattedDate = formatter.format(now);
-
+        List<Searcher> pesajesLineaMap = null;
         try {
-            CsvWriter.writeToCsv(new ArrayList<>(pesajesLineaMap.values()), "Tags with Errors ", "Errors in Lotes", formattedDate);
+            pesajesLineaMap = pesajesLineaService.listAllPesajesWithLoteErrors(d);
+            return ResponseEntity.ok(new ArrayList<>(pesajesLineaMap));
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
         }
+    }
 
-        return ResponseEntity.ok(new ArrayList<>(pesajesLineaMap.values()));
-
+    @Operation(summary = "Devuelve los registros en el sistema a partir de un TAG.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
+                    content = {@Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = Searcher.class)))})
+    })
+    @GetMapping(value = "/registriesByTag")
+    public ResponseEntity<Searcher> listAllRegistriesByTag(@RequestParam(value = "tag") String tag) {
+        return ResponseEntity.ok(pesajesLineaService.listAllPesajesByTag(tag));
     }
 }
