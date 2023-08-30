@@ -6,6 +6,8 @@ import cu.havanaclub.ekinsadbreview.util.CsvWriter;
 import cu.havanaclub.ekinsadbreview.util.Searcher;
 import cu.havanaclub.ekinsadbreview.util.Verifier;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -97,5 +99,28 @@ public class PesajesLineaController {
     @GetMapping(value = "/registriesByTag")
     public ResponseEntity<Searcher> listAllRegistriesByTag(@RequestParam(value = "tag") String tag) {
         return ResponseEntity.ok(pesajesLineaService.listAllPesajesByTag(tag));
+    }
+
+    @Operation(summary = "Devuelve los registros que tienen errores en las Zonas, dígase un TAG que ha entrado por una zona y no ha salido por otra o viceversa.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
+                    content = {@Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = Searcher.class)))})
+    })
+    @GetMapping(value = "/listAllPesajesWithErrorsInZoneByDates")
+    public ResponseEntity<List<Searcher>> listAllPesajesWithErrorsInZoneByDates(
+            @Parameter(description = "Fecha de inicio en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "startDate") String startDate,
+            @Parameter(description = "Fecha de fin en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "endDate") String endDate) {
+        long millis = Date.valueOf(startDate).getTime();
+        java.sql.Date d1 = new java.sql.Date(millis);
+
+        long millis1 = Date.valueOf(endDate).getTime();
+        java.sql.Date d2 = new java.sql.Date(millis1);
+        try {
+            return ResponseEntity.ok(pesajesLineaService.listAllPesajesWithErrorsInZoneByDate(d1, d2));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
+        }
     }
 }

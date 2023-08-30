@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * This class contains the scheduled task to search errors in tag and lotes every 1 day.
+ *
  * @author Gabriel
  * @version 1.0.0
  */
@@ -23,16 +24,19 @@ public class ScheduleTask {
 
     /**
      * Scheduled task to save the drones battery status every 30 minutes.
+     *
      * @throws IOException This exception is thrown if it is impossible to write to the log file due to insufficient permissions.
      */
     @Scheduled(cron = "@daily")
     public void saveDronesBatteryStatus() throws IOException {
         long millis = Date.valueOf("2023-07-14").getTime();
-        java.sql.Date d = new java.sql.Date(millis);
+        java.sql.Date startDate = new java.sql.Date(millis);
+        java.sql.Date now = new java.sql.Date(System.currentTimeMillis());
 
         try {
-            System.out.println("Detected " + pesajesLineaService.listAllPesajesWithLoteErrors(d).size() + " tags with errors in Lotes changes.");
-            System.out.println("Detected " + pesajesLineaService.listAllPesajesWithZoneErrorsAfterADate(d).size() + " tags with errors in zones.");
+            System.out.println("Detected " + pesajesLineaService.listAllPesajesWithLoteErrors(startDate).size() + " tags with errors in Lotes changes.");
+            System.out.println("Detected " + pesajesLineaService.listAllPesajesWithZoneErrorsAfterADate(startDate).size() + " tags with errors in zones.");
+            System.out.println("Detected " + pesajesLineaService.listAllPesajesWithErrorsInZoneByDate(startDate, now).size() + " tags with errors in zones using the new API.");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -10,11 +10,12 @@ import java.util.List;
 
 public interface PesajesLineaService {
 
-    public List<EkPesajesLinea> listAllPesajes();
+    List<EkPesajesLinea> listAllPesajes();
 
-    public List<EkPesajesLinea> lisAllPesajesAfterDate(Date date);
+    List<EkPesajesLinea> lisAllPesajesAfterDate(Date date);
 
-    public List<Searcher> listAllPesajesWithZoneErrorsAfterADate(Date date) throws IOException;
+    List<Searcher> listAllPesajesWithZoneErrorsAfterADate(Date date) throws IOException;
+    List<Searcher> listAllPesajesWithErrorsInZoneByDate(Date startDate, Date endDate) throws IOException;
 
     List<Searcher> listAllPesajesWithLoteErrors(Date date) throws IOException;
 

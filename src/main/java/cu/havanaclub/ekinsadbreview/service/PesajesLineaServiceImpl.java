@@ -42,13 +42,27 @@ public class PesajesLineaServiceImpl implements PesajesLineaService {
         pesajesLineaMap.entrySet().removeIf(entry -> Verifier.verifyZone(entry.getValue().getEntriesList()));
 
         java.util.Date now = new Date(System.currentTimeMillis());
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd hh mm ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd HH mm ss");
         String formattedDate = formatter.format(now);
 
         CsvWriter.writeToCsv(new ArrayList<>(pesajesLineaMap.values()), "Errors in Zones", formattedDate);
         System.out.println("Detected " + pesajesLineaMap.values().size() + " tags with errors.");
 
         return new ArrayList<>(pesajesLineaMap.values());
+    }
+
+    @Override
+    public List<Searcher> listAllPesajesWithErrorsInZoneByDate(Date startDate, Date endDate) throws IOException {
+        List<EkPesajesLinea> pesajesLineaList = pesajesLineaRepository.findEkPesajesLineaWithErrorsInZoneByDate(startDate, endDate);
+        Map<String, Searcher> pesajesLineaMap = Searcher.obtainSearcherMap(pesajesLineaList);
+
+        java.util.Date now = new Date(System.currentTimeMillis());
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd HH mm ss");
+        String formattedDate = formatter.format(now);
+        CsvWriter.writeToCsv(new ArrayList<>(pesajesLineaMap.values()), "Errors in Zones (NEW API VERSION)", formattedDate);
+
+        return new ArrayList<>(pesajesLineaMap.values());
+
     }
 
     @Override
@@ -59,7 +73,7 @@ public class PesajesLineaServiceImpl implements PesajesLineaService {
         pesajesLineaMap.entrySet().removeIf(entry -> Verifier.verifyLote(entry.getValue()));
 
         java.util.Date now = new Date(System.currentTimeMillis());
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd hh mm ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd HH mm ss");
         String formattedDate = formatter.format(now);
 
         CsvWriter.writeToCsv(new ArrayList<>(pesajesLineaMap.values()), "Errors in Lotes", formattedDate);
@@ -69,7 +83,7 @@ public class PesajesLineaServiceImpl implements PesajesLineaService {
 
     @Override
     public Searcher listAllPesajesByTag(String tag) {
-        List<EkPesajesLinea> pesajesLineaAfterDateList = pesajesLineaRepository.findEkPesajesLineaByTag(tag);
+        List<EkPesajesLinea> pesajesLineaAfterDateList = pesajesLineaRepository.findEkPesajesLineaByTagOrderByFecha(tag);
         List<Entry> entriesList = new ArrayList<>();
         for (EkPesajesLinea ekPesajesLinea : pesajesLineaAfterDateList) {
             entriesList.add(

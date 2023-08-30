@@ -28,12 +28,12 @@ public class Searcher {
     }
 
     public String toStringFile() {
-        StringBuilder text = new StringBuilder("\n" + tag + "," + countEntries + " entries\n");
+        StringBuilder text = new StringBuilder(tag + "," + countEntries + " entries\n");
         StringBuilder line = new StringBuilder();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         for (int i = 0; i < countEntries; i++) {
             String formattedDate = formatter.format(entriesList.get(i).date);
-            line.append(tag).append(",").append(formattedDate).append(",").append(entriesList.get(i).lote).append(",").append(entriesList.get(i).weigth).append(",").append(entriesList.get(i).zone).append("\n");
+            line.append(",").append(tag).append(",").append(formattedDate).append(",").append(entriesList.get(i).lote).append(",").append(entriesList.get(i).weigth).append(",").append(entriesList.get(i).zone).append("\n");
             text.append(line);
             line = new StringBuilder();
         }
