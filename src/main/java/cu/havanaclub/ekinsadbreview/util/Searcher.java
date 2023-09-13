@@ -13,13 +13,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Esta clase contiene la función de convertir los registros RAW de los pallets en registros agrupados por Tag. Además,
+ * contiene la función <em>ToStringFile</em> que permite obtener un <em>String</em> con para escribirlo en el fichero
+ * <em>.csv</em> correctamente.
+ * @author Nerzur
+ */
 @Data
 @AllArgsConstructor
 @Builder
 public class Searcher {
 
+    /**
+     * Tag del registro.
+     */
     String tag;
+
+    /**
+     * Cantidad de registros asociados al tag.
+     */
     Integer countEntries;
+
+    /**
+     * Listado de registros asociados al tag.
+     */
     List<Entry> entriesList;
 
     @Override
@@ -27,6 +44,11 @@ public class Searcher {
         return toStringFile();
     }
 
+    /**
+     * Esta función se encarga de obtener un <em>String</em> con el formato adecuado para ser escrito en un fichero
+     * <em>.csv</em>
+     * @return Devuelve el <em>String</em> formateado para ser escrito en un fichero <em>.csv</em>
+     */
     public String toStringFile() {
         StringBuilder text = new StringBuilder(tag + "," + countEntries + " entries\n");
         StringBuilder line = new StringBuilder();
@@ -40,6 +62,12 @@ public class Searcher {
         return text.toString();
     }
 
+    /**
+     * Esta función permite obtener un {@link Map} que contiene una agrupación de los registros por
+     * Tag, de forma tal que la clave será el identificador del Tag y el valor serán los registros asociados a este.
+     * @param searcherList Lista de registros a procesar.
+     * @return Devuelve un {@link Map} con los registros asociados por Tag.
+     */
     public static Map<String, Searcher> obtainSearcherMap(List<EkPesajesLinea> searcherList) {
         Map<String, Searcher> pesajesLineaMap = new HashMap<>();
         for (EkPesajesLinea ekPesajesLinea : searcherList) {

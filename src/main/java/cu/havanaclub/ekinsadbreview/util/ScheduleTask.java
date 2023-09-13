@@ -23,7 +23,7 @@ public class ScheduleTask {
     private PesajesLineaService pesajesLineaService;
 
     /**
-     * Scheduled task to save the drones battery status every 30 minutes.
+     * Scheduled task to save the CSV file every day.
      *
      * @throws IOException This exception is thrown if it is impossible to write to the log file due to insufficient permissions.
      */
@@ -35,7 +35,7 @@ public class ScheduleTask {
 
         try {
             System.out.println("Detected " + pesajesLineaService.listAllPesajesWithLoteErrors(startDate).size() + " tags with errors in Lotes changes.");
-            System.out.println("Detected " + pesajesLineaService.listAllPesajesWithZoneErrorsAfterADate(startDate).size() + " tags with errors in zones.");
+//            System.out.println("Detected " + pesajesLineaService.listAllPesajesWithZoneErrorsAfterADate(startDate).size() + " tags with errors in zones.");
             System.out.println("Detected " + pesajesLineaService.listAllPesajesWithErrorsInZoneByDate(startDate, now).size() + " tags with errors in zones using the new API.");
         } catch (IOException e) {
             throw new RuntimeException(e);

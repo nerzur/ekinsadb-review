@@ -13,8 +13,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,20 +37,33 @@ public class PesajesLineaServiceImpl implements PesajesLineaService {
     }
 
     @Override
-    public List<Searcher> listAllPesajesWithZoneErrorsAfterADate(Date date) throws IOException {
-        List<EkPesajesLinea> pesajesLineaAfterDateList = lisAllPesajesAfterDate(date);
+    public List<Searcher> listAllPesajesWithZoneErrorsAfterADate(Date startDate, Date endDate) {
+        Timestamp timestampStart = new java.sql.Timestamp(startDate.getTime());
+        Timestamp timestampEnd = new java.sql.Timestamp(endDate.getTime());
+
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.setTime(timestampEnd);
+        cal.set(java.util.Calendar.HOUR_OF_DAY, 23);
+        cal.set(java.util.Calendar.MINUTE, 59);
+        cal.set(java.util.Calendar.SECOND, 0);
+        cal.set(java.util.Calendar.MILLISECOND, 0);
+        timestampEnd.setTime(cal.getTime().getTime());
+
+        List<EkPesajesLinea> pesajesLineaAfterDateList = pesajesLineaRepository.findEkPesajesLineaByFechaBetweenOrderByFecha(timestampStart, timestampEnd);
         Map<String, Searcher> pesajesLineaMap = Searcher.obtainSearcherMap(pesajesLineaAfterDateList);
 
         pesajesLineaMap.entrySet().removeIf(entry -> Verifier.verifyZone(entry.getValue().getEntriesList()));
+        pesajesLineaMap.entrySet().removeIf(entry -> searchErrorsInRegistry(entry.getValue()));
 
-        java.util.Date now = new Date(System.currentTimeMillis());
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd HH mm ss");
-        String formattedDate = formatter.format(now);
-
-        CsvWriter.writeToCsv(new ArrayList<>(pesajesLineaMap.values()), "Errors in Zones", formattedDate);
         System.out.println("Detected " + pesajesLineaMap.values().size() + " tags with errors.");
 
         return new ArrayList<>(pesajesLineaMap.values());
+    }
+
+    private boolean searchErrorsInRegistry(Searcher searcher){
+        List<EkPesajesLinea> pesajesByTag = pesajesLineaRepository.findEkPesajesLineaByTagOrderByFecha(searcher.getTag());
+        Map<String, Searcher> pesajesLineaMap = Searcher.obtainSearcherMap(pesajesByTag);
+        return Verifier.verifyZone(pesajesLineaMap.get(searcher.getTag()).getEntriesList());
     }
 
     @Override
@@ -100,5 +115,47 @@ public class PesajesLineaServiceImpl implements PesajesLineaService {
                 .countEntries(pesajesLineaAfterDateList.size())
                 .entriesList(entriesList)
                 .build();
+    }
+
+    @Override
+    public Integer countPesajesToday() {
+        return pesajesLineaRepository.countEkPesajesLineaToday();
+    }
+
+    @Override
+    public Integer countLotesByDates(Date startDate, Date endDate) {
+        return pesajesLineaRepository.countLotesByDates(startDate, endDate);
+    }
+
+    @Override
+    public Integer countErrorsTagByDates(Date startDate, Date endDate) {
+        return listAllPesajesWithZoneErrorsAfterADate(startDate, endDate).size();
+    }
+
+    @Override
+    public List<EkPesajesLinea> findEkPesajesLineaByTag(String tag) {
+        return pesajesLineaRepository.findEkPesajesLineaByTagOrderByFecha(tag);
+    }
+
+    @Override
+    public Integer findCountLotesWithErrorsByDates(Date startDate, Date endDate) {
+        List<Searcher> pesajesLineaWithErrorsList = listAllPesajesWithZoneErrorsAfterADate(startDate, endDate);
+
+        Map<String, Integer> lotesErrorMap = new HashMap<>();
+
+        pesajesLineaWithErrorsList.forEach(searcher -> {
+            if (!lotesErrorMap.containsKey(searcher.getEntriesList().get(0).getLote())) {
+                lotesErrorMap.put(searcher.getEntriesList().get(0).getLote(), 1);
+            } else {
+                lotesErrorMap.replace(searcher.getEntriesList().get(0).getLote(), lotesErrorMap.get(searcher.getEntriesList().get(0).getLote() + 1));
+            }
+        });
+        return lotesErrorMap.values().size();
+    }
+
+    @Override
+    public Integer findCountLotesWithOutErrorsByDates(Date startDate, Date endDate) {
+        int countDistinctNumeroLoteByDate = pesajesLineaRepository.findDistinctNumeroLoteByDate(startDate, endDate).size();
+        return countDistinctNumeroLoteByDate - findCountLotesWithErrorsByDates(startDate, endDate);
     }
 }

@@ -14,10 +14,22 @@ public interface PesajesLineaService {
 
     List<EkPesajesLinea> lisAllPesajesAfterDate(Date date);
 
-    List<Searcher> listAllPesajesWithZoneErrorsAfterADate(Date date) throws IOException;
+    List<Searcher> listAllPesajesWithZoneErrorsAfterADate(Date startDate, Date endDate);
     List<Searcher> listAllPesajesWithErrorsInZoneByDate(Date startDate, Date endDate) throws IOException;
 
     List<Searcher> listAllPesajesWithLoteErrors(Date date) throws IOException;
 
     Searcher listAllPesajesByTag(String tag);
+
+    Integer countPesajesToday();
+
+    Integer countLotesByDates(Date startDate, Date endDate);
+
+    Integer countErrorsTagByDates(Date startDate, Date endDate);
+
+    List<EkPesajesLinea> findEkPesajesLineaByTag(String tag);
+
+    Integer findCountLotesWithErrorsByDates(Date startDate, Date endDate);
+
+    Integer findCountLotesWithOutErrorsByDates(Date startDate, Date endDate);
 }

@@ -16,10 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -39,32 +36,45 @@ public class PesajesLineaController {
                     content = {@Content(mediaType = "application/json")})
     })
     @GetMapping
+    @CrossOrigin
     public ResponseEntity<Integer> listAllPesajes() {
         List<EkPesajesLinea> pesajesLineaList = pesajesLineaService.listAllPesajes();
         return ResponseEntity.ok(pesajesLineaList.size());
     }
 
-    @Operation(summary = "Devuelve las entradas existentes en la base de datos a partir de una fecha inficada que tienen problemas en las zonas." +
-            "Se tiene en cuenta que un parlet haya entrado por una zona y no haya salido o que la cantidad de entradas por las zonas" +
-            "difiere de las cuatro habituales (1,2,3,4). Este servicio también genera un fichero .csv con las entradas detectadas.")
+    @Operation(summary = "Devuelve la cantidad de pesajes realizados hoy.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "La consulta se ha realizado correctamente",
+                    content = {@Content(mediaType = "application/json")})
+    })
+    @GetMapping(value = "/pesajesToday")
+    @CrossOrigin
+    public ResponseEntity<Integer> countPesajesToday() {
+        return ResponseEntity.ok(pesajesLineaService.countPesajesToday());
+    }
+
+    @Operation(summary = "Lista los errores existentes en las zonas de los registros de forma manual. Suma 1 cuando se encuentra un" +
+            "registro por una zona de entrada de línea y resta 1 cuando sale el registro por la zona homóloga.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
                     content = {@Content(mediaType = "application/json",
                             array = @ArraySchema(schema = @Schema(implementation = Searcher.class)))})
     })
-    @GetMapping(value = "/pesajesErroresZonaAfterDate")
-    public ResponseEntity<List<Searcher>> listAllPesajesWithZoneErrorsAfterADate() {
+    @CrossOrigin
+    @GetMapping(value = "/pesajesErroresZonaInRangeDate")
+    public ResponseEntity<List<Searcher>> pesajesErroresZonaInRangeDate(
+            @Parameter(description = "Fecha de inicio en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "startDate") String startDate,
+            @Parameter(description = "Fecha de fin en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "endDate") String endDate) {
 
-        long millis = Date.valueOf("2023-07-14").getTime();
-        java.sql.Date d = new java.sql.Date(millis);
+        long millis = Date.valueOf(startDate).getTime();
+        java.sql.Date d1 = new java.sql.Date(millis);
+
+        long millis1 = Date.valueOf(endDate).getTime();
+        java.sql.Date d2 = new java.sql.Date(millis1);
+
         List<Searcher> pesajesLineaMap = null;
-        try {
-            pesajesLineaMap = pesajesLineaService.listAllPesajesWithZoneErrorsAfterADate(d);
-            return ResponseEntity.ok(new ArrayList<>(pesajesLineaMap));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
-        }
+        pesajesLineaMap = pesajesLineaService.listAllPesajesWithZoneErrorsAfterADate(d1, d2);
+        return ResponseEntity.ok(new ArrayList<>(pesajesLineaMap));
     }
 
     @Operation(summary = "Devuelve las entradas existentes en la base de datos a partir de una fecha inficada que tienen problemas de cambio de lote." +
@@ -107,6 +117,7 @@ public class PesajesLineaController {
                     content = {@Content(mediaType = "application/json",
                             array = @ArraySchema(schema = @Schema(implementation = Searcher.class)))})
     })
+    @CrossOrigin
     @GetMapping(value = "/listAllPesajesWithErrorsInZoneByDates")
     public ResponseEntity<List<Searcher>> listAllPesajesWithErrorsInZoneByDates(
             @Parameter(description = "Fecha de inicio en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "startDate") String startDate,
@@ -122,5 +133,105 @@ public class PesajesLineaController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
         }
+    }
+
+    @Operation(summary = "Cantidad de lotes procesados en un rango de fecha.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
+                    content = {@Content(mediaType = "application/json")})
+    })
+    @CrossOrigin
+    @GetMapping(value = "/countLotesByDates")
+    public ResponseEntity<Integer> countLotesByDates(
+            @Parameter(description = "Fecha de inicio en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "startDate") String startDate,
+            @Parameter(description = "Fecha de fin en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "endDate") String endDate) {
+        long millis = Date.valueOf(startDate).getTime();
+        java.sql.Date d1 = new java.sql.Date(millis);
+
+        long millis1 = Date.valueOf(endDate).getTime();
+        java.sql.Date d2 = new java.sql.Date(millis1);
+        return ResponseEntity.ok(pesajesLineaService.countLotesByDates(d1, d2));
+    }
+
+    @Operation(summary = "Cantidad de registros con errores (tags con registros huérfanos) en un rango de fechas.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
+                    content = {@Content(mediaType = "application/json")})
+    })
+    @CrossOrigin
+    @GetMapping(value = "/countErrorsInTagByDates")
+    public ResponseEntity<Integer> countErrorsInTagByDates(
+            @Parameter(description = "Fecha de inicio en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "startDate") String startDate,
+            @Parameter(description = "Fecha de fin en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "endDate") String endDate) {
+        long millis = Date.valueOf(startDate).getTime();
+        java.sql.Date d1 = new java.sql.Date(millis);
+
+        long millis1 = Date.valueOf(endDate).getTime();
+        java.sql.Date d2 = new java.sql.Date(millis1);
+        return ResponseEntity.ok(pesajesLineaService.countErrorsTagByDates(d1, d2));
+    }
+
+    @Operation(summary = "Devuelve los registros de un tag.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
+                    content = {@Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = EkPesajesLinea.class)))})
+    })
+    @CrossOrigin
+    @GetMapping(value = "/findEkPesajesLineaByTag")
+    public ResponseEntity<List<EkPesajesLinea>> findEkPesajesLineaByTag(
+            @Parameter(description = "Tag del pallet", required = true, in = ParameterIn.QUERY) @RequestParam(value = "tag") String tag){
+        return ResponseEntity.ok(pesajesLineaService.findEkPesajesLineaByTag(tag));
+    }
+
+    @Operation(summary = "Cantidad de lotes con errores en un rango de fechas.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
+                    content = {@Content(mediaType = "application/json")})
+    })
+    @CrossOrigin
+    @GetMapping(value = "/countLotesWithErrorsInTagByDates")
+    public ResponseEntity<Integer> countLotesWithErrorsByDate(
+            @Parameter(description = "Fecha de inicio en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "startDate") String startDate,
+            @Parameter(description = "Fecha de fin en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "endDate") String endDate) {
+        long millis = Date.valueOf(startDate).getTime();
+        java.sql.Date d1 = new java.sql.Date(millis);
+
+        long millis1 = Date.valueOf(endDate).getTime();
+        java.sql.Date d2 = new java.sql.Date(millis1);
+        return ResponseEntity.ok(pesajesLineaService.findCountLotesWithErrorsByDates(d1, d2));
+    }
+
+    @Operation(summary = "Cantidad de lotes sin errores en un rango de fechas.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
+                    content = {@Content(mediaType = "application/json")})
+    })
+    @CrossOrigin
+    @GetMapping(value = "/countLotesWithOutErrorsInTagByDates")
+    public ResponseEntity<Integer> countLotesWithOutErrorsByDate(
+            @Parameter(description = "Fecha de inicio en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "startDate") String startDate,
+            @Parameter(description = "Fecha de fin en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "endDate") String endDate) {
+        long millis = Date.valueOf(startDate).getTime();
+        java.sql.Date d1 = new java.sql.Date(millis);
+
+        long millis1 = Date.valueOf(endDate).getTime();
+        java.sql.Date d2 = new java.sql.Date(millis1);
+        return ResponseEntity.ok(pesajesLineaService.findCountLotesWithOutErrorsByDates(d1, d2));
+    }
+
+    @Operation(summary = "Cantidad de lotes sin errores en un rango de fechas.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
+                    content = {@Content(mediaType = "application/json")})
+    })
+    @CrossOrigin
+    @GetMapping(value = "/countPesajesAfterDate")
+    public ResponseEntity<Integer> countPesajesAfterDate(
+            @Parameter(description = "Fecha de inicio en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "startDate") String startDate) {
+        long millis = Date.valueOf(startDate).getTime();
+        java.sql.Date d1 = new java.sql.Date(millis);
+
+        return ResponseEntity.ok(pesajesLineaService.lisAllPesajesAfterDate(d1).size());
     }
 }
