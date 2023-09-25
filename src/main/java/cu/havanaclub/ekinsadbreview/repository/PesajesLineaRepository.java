@@ -1,6 +1,7 @@
 package cu.havanaclub.ekinsadbreview.repository;
 
 import cu.havanaclub.ekinsadbreview.entity.EkPesajesLinea;
+import cu.havanaclub.ekinsadbreview.util.EntriesByDate;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -76,4 +77,11 @@ public interface PesajesLineaRepository extends JpaRepository<EkPesajesLinea, St
      */
     @Query(value = "SELECT DISTINCT Numero_Lote FROM EK_PesajesLinea WHERE Fecha >= ?1 and Fecha <=?2", nativeQuery = true)
     List<String> findDistinctNumeroLoteByDate(Date startDate, Date endDate);
+
+    /**
+     * Devuelve la cantidad total de pallets procesados por mes y año.
+     * @return Cantidades de pallets procesados por mes y año.
+     */
+    @Query("SELECT new cu.havanaclub.ekinsadbreview.util.EntriesByDate(YEAR(p.fecha), MONTH(p.fecha), COUNT(*)) AS registries FROM EkPesajesLinea p GROUP BY YEAR(p.fecha), MONTH(p.fecha) ORDER BY  YEAR(p.fecha), MONTH(p.fecha)")
+    List<EntriesByDate> countEntriesByDates();
 }

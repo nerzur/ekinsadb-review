@@ -1,6 +1,7 @@
 package cu.havanaclub.ekinsadbreview.service;
 
 import cu.havanaclub.ekinsadbreview.entity.EkPesajesLinea;
+import cu.havanaclub.ekinsadbreview.util.EntriesByDate;
 import cu.havanaclub.ekinsadbreview.util.Searcher;
 import org.springframework.http.ResponseEntity;
 
@@ -32,4 +33,6 @@ public interface PesajesLineaService {
     Integer findCountLotesWithErrorsByDates(Date startDate, Date endDate);
 
     Integer findCountLotesWithOutErrorsByDates(Date startDate, Date endDate);
+
+    List<EntriesByDate> countEntriesByDates();
 }

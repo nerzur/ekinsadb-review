@@ -2,10 +2,7 @@ package cu.havanaclub.ekinsadbreview.service;
 
 import cu.havanaclub.ekinsadbreview.entity.EkPesajesLinea;
 import cu.havanaclub.ekinsadbreview.repository.PesajesLineaRepository;
-import cu.havanaclub.ekinsadbreview.util.CsvWriter;
-import cu.havanaclub.ekinsadbreview.util.Entry;
-import cu.havanaclub.ekinsadbreview.util.Searcher;
-import cu.havanaclub.ekinsadbreview.util.Verifier;
+import cu.havanaclub.ekinsadbreview.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -157,5 +154,10 @@ public class PesajesLineaServiceImpl implements PesajesLineaService {
     public Integer findCountLotesWithOutErrorsByDates(Date startDate, Date endDate) {
         int countDistinctNumeroLoteByDate = pesajesLineaRepository.findDistinctNumeroLoteByDate(startDate, endDate).size();
         return countDistinctNumeroLoteByDate - findCountLotesWithErrorsByDates(startDate, endDate);
+    }
+
+    @Override
+    public List<EntriesByDate> countEntriesByDates() {
+        return pesajesLineaRepository.countEntriesByDates();
     }
 }

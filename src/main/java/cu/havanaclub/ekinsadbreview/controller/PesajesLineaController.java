@@ -3,6 +3,7 @@ package cu.havanaclub.ekinsadbreview.controller;
 import cu.havanaclub.ekinsadbreview.entity.EkPesajesLinea;
 import cu.havanaclub.ekinsadbreview.service.PesajesLineaService;
 import cu.havanaclub.ekinsadbreview.util.CsvWriter;
+import cu.havanaclub.ekinsadbreview.util.EntriesByDate;
 import cu.havanaclub.ekinsadbreview.util.Searcher;
 import cu.havanaclub.ekinsadbreview.util.Verifier;
 import io.swagger.v3.oas.annotations.Operation;
@@ -233,5 +234,16 @@ public class PesajesLineaController {
         java.sql.Date d1 = new java.sql.Date(millis);
 
         return ResponseEntity.ok(pesajesLineaService.lisAllPesajesAfterDate(d1).size());
+    }
+
+    @Operation(summary = "Cantidad de lotes sin errores en un rango de fechas.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
+                    content = {@Content(mediaType = "application/json")})
+    })
+    @CrossOrigin
+    @GetMapping(value = "/countEntriesByDates")
+    public ResponseEntity<List<EntriesByDate>> countEntriesByDates(){
+        return ResponseEntity.ok(pesajesLineaService.countEntriesByDates());
     }
 }
