@@ -28,7 +28,7 @@ public class ScheduleTask {
      * @throws IOException This exception is thrown if it is impossible to write to the log file due to insufficient permissions.
      */
     @Scheduled(cron = "@daily")
-    public void saveDronesBatteryStatus() throws IOException {
+    public void saveCSVFile() throws IOException {
         long millis = Date.valueOf("2023-07-14").getTime();
         java.sql.Date startDate = new java.sql.Date(millis);
         java.sql.Date now = new java.sql.Date(System.currentTimeMillis());

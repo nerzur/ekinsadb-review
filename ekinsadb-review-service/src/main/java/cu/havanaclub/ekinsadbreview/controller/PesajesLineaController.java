@@ -221,7 +221,7 @@ public class PesajesLineaController {
         return ResponseEntity.ok(pesajesLineaService.findCountLotesWithOutErrorsByDates(d1, d2));
     }
 
-    @Operation(summary = "Cantidad de lotes sin errores en un rango de fechas.")
+    @Operation(summary = "Cantidad de pesajes posteriores a una fecha.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
                     content = {@Content(mediaType = "application/json")})
@@ -236,7 +236,7 @@ public class PesajesLineaController {
         return ResponseEntity.ok(pesajesLineaService.lisAllPesajesAfterDate(d1).size());
     }
 
-    @Operation(summary = "Cantidad de lotes sin errores en un rango de fechas.")
+    @Operation(summary = "Cantidad de pesajes por meses y años.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
                     content = {@Content(mediaType = "application/json")})
