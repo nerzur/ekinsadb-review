@@ -2,10 +2,7 @@ package cu.havanaclub.ekinsadbreview.controller;
 
 import cu.havanaclub.ekinsadbreview.entity.EkPesajesLinea;
 import cu.havanaclub.ekinsadbreview.service.PesajesLineaService;
-import cu.havanaclub.ekinsadbreview.util.CsvWriter;
-import cu.havanaclub.ekinsadbreview.util.EntriesByDate;
-import cu.havanaclub.ekinsadbreview.util.Searcher;
-import cu.havanaclub.ekinsadbreview.util.Verifier;
+import cu.havanaclub.ekinsadbreview.util.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -15,8 +12,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -25,7 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
-@RequestMapping(value = "pesajesLinea")
+@RequestMapping(value = "${server.url.suffix}/pesajesLinea")
+@PreAuthorize("hasRole('ADMIN_ROLE')")
 public class PesajesLineaController {
 
     @Autowired
