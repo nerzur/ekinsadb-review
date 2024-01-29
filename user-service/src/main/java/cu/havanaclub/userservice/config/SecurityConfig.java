@@ -1,6 +1,5 @@
-package cu.havanaclub.ekinsadbreview.config;
+package cu.havanaclub.userservice.config;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

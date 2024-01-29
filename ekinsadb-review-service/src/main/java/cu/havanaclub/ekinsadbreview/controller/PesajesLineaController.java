@@ -25,7 +25,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping(value = "${server.url.suffix}/pesajesLinea")
-@PreAuthorize("hasRole('ADMIN_ROLE')")
+@PreAuthorize("hasRole('USER_ROLE')")
 public class PesajesLineaController {
 
     @Autowired
