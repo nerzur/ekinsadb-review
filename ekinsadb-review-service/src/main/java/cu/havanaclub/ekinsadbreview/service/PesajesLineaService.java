@@ -3,6 +3,9 @@ package cu.havanaclub.ekinsadbreview.service;
 import cu.havanaclub.ekinsadbreview.entity.EkPesajesLinea;
 import cu.havanaclub.ekinsadbreview.util.EntriesByDate;
 import cu.havanaclub.ekinsadbreview.util.Searcher;
+import cu.havanaclub.ekinsadbreview.util.UpdateLote;
+import jakarta.validation.constraints.NotNull;
+import lombok.NonNull;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
@@ -35,4 +38,6 @@ public interface PesajesLineaService {
     Integer findCountLotesWithOutErrorsByDates(Date startDate, Date endDate);
 
     List<EntriesByDate> countEntriesByDates();
+
+    List<EkPesajesLinea> updateLote(@NonNull UpdateLote updateLote);
 }

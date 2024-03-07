@@ -3,6 +3,7 @@ package cu.havanaclub.ekinsadbreview.repository;
 import cu.havanaclub.ekinsadbreview.entity.EkPesajesLinea;
 import cu.havanaclub.ekinsadbreview.util.EntriesByDate;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -84,4 +85,10 @@ public interface PesajesLineaRepository extends JpaRepository<EkPesajesLinea, St
      */
     @Query("SELECT new cu.havanaclub.ekinsadbreview.util.EntriesByDate(YEAR(p.fecha), MONTH(p.fecha), COUNT(*)) AS registries FROM EkPesajesLinea p GROUP BY YEAR(p.fecha), MONTH(p.fecha) ORDER BY  YEAR(p.fecha), MONTH(p.fecha)")
     List<EntriesByDate> countEntriesByDates();
+
+    List<EkPesajesLinea> findByTagAndNumeroLote(String tag, String numeroLote);
+
+//    @Modifying
+//    @Query(value = "update EkPesajesLinea set Numero_Lote = ?3 where Tag like ?1 and Numero_lote like ?2 and (IdZona = 1 or IdZona = 2)", nativeQuery = true)
+//    void updateLote(String tag, String prevLote, String newLote);
 }

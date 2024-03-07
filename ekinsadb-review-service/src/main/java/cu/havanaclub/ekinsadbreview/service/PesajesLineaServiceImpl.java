@@ -3,6 +3,8 @@ package cu.havanaclub.ekinsadbreview.service;
 import cu.havanaclub.ekinsadbreview.entity.EkPesajesLinea;
 import cu.havanaclub.ekinsadbreview.repository.PesajesLineaRepository;
 import cu.havanaclub.ekinsadbreview.util.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +59,7 @@ public class PesajesLineaServiceImpl implements PesajesLineaService {
         return new ArrayList<>(pesajesLineaMap.values());
     }
 
-    private boolean searchErrorsInRegistry(Searcher searcher){
+    private boolean searchErrorsInRegistry(Searcher searcher) {
         List<EkPesajesLinea> pesajesByTag = pesajesLineaRepository.findEkPesajesLineaByTagOrderByFecha(searcher.getTag());
         Map<String, Searcher> pesajesLineaMap = Searcher.obtainSearcherMap(pesajesByTag);
         return Verifier.verifyZone(pesajesLineaMap.get(searcher.getTag()).getEntriesList());
@@ -159,5 +161,23 @@ public class PesajesLineaServiceImpl implements PesajesLineaService {
     @Override
     public List<EntriesByDate> countEntriesByDates() {
         return pesajesLineaRepository.countEntriesByDates();
+    }
+
+    @Override
+    public List<EkPesajesLinea> updateLote(@NonNull UpdateLote updateLote) {
+        List<EkPesajesLinea> ekPesajesLineaList = new ArrayList<>();
+        for (String tag : updateLote.getTagsList()) {
+            List<EkPesajesLinea> list = pesajesLineaRepository.findByTagAndNumeroLote(tag, updateLote.getPrevLote());
+            for (EkPesajesLinea ekPesajesLinea : list) {
+                boolean isVaciado = updateLote.getIsVaciado();
+                int idZona = ekPesajesLinea.getIdZona();
+
+                if ((isVaciado && (idZona == 1 || idZona == 2)) || (!isVaciado && (idZona == 3 || idZona == 4))) {
+                    ekPesajesLinea.setNumeroLote(updateLote.getNewLote());
+                    ekPesajesLineaList.add(pesajesLineaRepository.save(ekPesajesLinea));
+                }
+            }
+        }
+        return ekPesajesLineaList;
     }
 }

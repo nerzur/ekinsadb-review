@@ -246,4 +246,9 @@ public class PesajesLineaController {
     public ResponseEntity<List<EntriesByDate>> countEntriesByDates(){
         return ResponseEntity.ok(pesajesLineaService.countEntriesByDates());
     }
+
+    @PostMapping(value = "/updateLote")
+    public ResponseEntity<?> updateLote(@RequestBody UpdateLote updateLoteData){
+        return ResponseEntity.ok(pesajesLineaService.updateLote(updateLoteData));
+    }
 }
