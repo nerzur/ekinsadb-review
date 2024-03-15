@@ -2,7 +2,9 @@ package cu.havanaclub.ekinsadbreview.controller;
 
 import cu.havanaclub.ekinsadbreview.entity.EkPesajesLinea;
 import cu.havanaclub.ekinsadbreview.service.PesajesLineaService;
-import cu.havanaclub.ekinsadbreview.util.*;
+import cu.havanaclub.ekinsadbreview.util.EntriesByDate;
+import cu.havanaclub.ekinsadbreview.util.Searcher;
+import cu.havanaclub.ekinsadbreview.util.UpdateLote;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -11,8 +13,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,12 +22,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.sql.Date;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
-@RequestMapping(value = "${server.url.suffix}/pesajesLinea")
+@RequestMapping(value = "${server.url.prefix}/pesajesLinea")
 @PreAuthorize("hasRole('USER_ROLE')")
+@SecurityRequirement(name = "Bearer Authentication")
+@CrossOrigin
 public class PesajesLineaController {
 
     @Autowired
