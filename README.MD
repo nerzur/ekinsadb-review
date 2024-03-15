@@ -8,6 +8,9 @@ It is made up of a main project and a set of subprojects that make up the web se
 - **api-gateway:** Service that works as a reverse proxy to group the different services that make up this project into a single port. Use load balancing.
 - **user-service:** Service that allows the administration of Keycloak users. Through this service users can be consulted, added, modified or deleted.
 
+> [!IMPORTANT]  
+> Keycloack has been used to control and register users. To use the services implemented in this project it is necessary to start the keycloack service.
+
 When starting services it is important to note the boot order. These should start in the following order:
 1. keycloak-service
 2. registry-service
@@ -54,7 +57,11 @@ docker-compose up --build docker-compose.yml
 
 ## Services Execution
 
-Once the services have been executed, the following URLs will be available:
-- http://localhost:8091/swagger-ui/index.html : This URL contains a web page that shows the information of each of the endpoints available in drone-service documented with Swagger. It contains information on the structure of the requests and responses that these endpoints accept.
+To access the service monitoring interfaces you can use the following URL:
 - http://localhost:8761: Contains the website of the Eureka Server, which allows you to follow the status of the drone-service..
 - http://localhost:8086 : Contains the Spring Admin web interface. This service allows you to view the drone-service status.
+
+To test the implemented services you can use the following URLs:
+- http://localhost:8090/api/ekinsadb-review-service/v1/swagger-ui/index.html : This URL contains a web page created with SwaggerUI that allows you to check each of the web services implemented in this service. In this case all endpoints developed for ekinsadb-review-service can be checked.
+- http://localhost:8090/api/user-service/v1/swagger-ui/index.html : This URL contains a web page created with SwaggerUI that allows you to check each of the web services implemented in this service. In this case all endpoints developed for user-service can be checked.
+

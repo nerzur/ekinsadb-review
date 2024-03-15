@@ -254,7 +254,7 @@ public class PesajesLineaController {
 
     @Operation(summary = "Realiza una prueba de cambio del lote de los registros correspondientes a los tags indicados en una " +
             "línea específica (llenado o vaciado). Devuelve un JSON con la información de los registros que serán " +
-            "modificados de ejecutar la consulta <em>/updateLote.</em>")
+            "modificados de ejecutar la consulta /updateLote.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
                     content = {@Content(mediaType = "application/json")})

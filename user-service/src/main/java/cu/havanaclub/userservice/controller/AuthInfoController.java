@@ -37,7 +37,6 @@ public class AuthInfoController {
                     content = {@Content(mediaType = "application/json")})
     })
     @GetMapping()
-    @CrossOrigin
     public ResponseEntity<?> getUsername() {
         Authentication auth = SecurityContextHolder
                 .getContext()
