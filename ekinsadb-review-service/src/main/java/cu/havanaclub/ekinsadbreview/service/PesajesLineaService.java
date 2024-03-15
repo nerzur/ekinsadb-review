@@ -40,4 +40,6 @@ public interface PesajesLineaService {
     List<EntriesByDate> countEntriesByDates();
 
     List<EkPesajesLinea> updateLote(@NonNull UpdateLote updateLote);
+
+    List<EkPesajesLinea> testUpdateLote(@NonNull UpdateLote updateLote);
 }

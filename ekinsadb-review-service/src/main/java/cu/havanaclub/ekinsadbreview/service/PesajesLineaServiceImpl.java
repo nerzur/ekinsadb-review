@@ -164,7 +164,7 @@ public class PesajesLineaServiceImpl implements PesajesLineaService {
     }
 
     @Override
-    public List<EkPesajesLinea> updateLote(@NonNull UpdateLote updateLote) {
+    public List<EkPesajesLinea> testUpdateLote(@NonNull UpdateLote updateLote) {
         List<EkPesajesLinea> ekPesajesLineaList = new ArrayList<>();
         for (String tag : updateLote.getTagsList()) {
             List<EkPesajesLinea> list = pesajesLineaRepository.findByTagAndNumeroLote(tag, updateLote.getPrevLote());
@@ -174,10 +174,20 @@ public class PesajesLineaServiceImpl implements PesajesLineaService {
 
                 if ((isVaciado && (idZona == 1 || idZona == 2)) || (!isVaciado && (idZona == 3 || idZona == 4))) {
                     ekPesajesLinea.setNumeroLote(updateLote.getNewLote());
-                    ekPesajesLineaList.add(pesajesLineaRepository.save(ekPesajesLinea));
+                    ekPesajesLineaList.add(ekPesajesLinea);
                 }
             }
         }
         return ekPesajesLineaList;
+    }
+
+    @Override
+    public List<EkPesajesLinea> updateLote(@NonNull UpdateLote updateLote) {
+        List<EkPesajesLinea> ekPesajesLineaList = testUpdateLote(updateLote);
+        List<EkPesajesLinea> ekPesajesLineaListOutput = new ArrayList<>();
+        ekPesajesLineaList.forEach(ekPesajesLinea -> {
+            ekPesajesLineaListOutput.add(pesajesLineaRepository.save(ekPesajesLinea));
+        });
+        return ekPesajesLineaListOutput;
     }
 }

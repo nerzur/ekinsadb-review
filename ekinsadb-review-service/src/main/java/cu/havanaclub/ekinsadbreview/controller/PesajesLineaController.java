@@ -37,7 +37,6 @@ public class PesajesLineaController {
                     content = {@Content(mediaType = "application/json")})
     })
     @GetMapping
-    @CrossOrigin
     public ResponseEntity<Integer> listAllPesajes() {
         List<EkPesajesLinea> pesajesLineaList = pesajesLineaService.listAllPesajes();
         return ResponseEntity.ok(pesajesLineaList.size());
@@ -49,7 +48,6 @@ public class PesajesLineaController {
                     content = {@Content(mediaType = "application/json")})
     })
     @GetMapping(value = "/pesajesToday")
-    @CrossOrigin
     public ResponseEntity<Integer> countPesajesToday() {
         return ResponseEntity.ok(pesajesLineaService.countPesajesToday());
     }
@@ -61,7 +59,6 @@ public class PesajesLineaController {
                     content = {@Content(mediaType = "application/json",
                             array = @ArraySchema(schema = @Schema(implementation = Searcher.class)))})
     })
-    @CrossOrigin
     @GetMapping(value = "/pesajesErroresZonaInRangeDate")
     public ResponseEntity<List<Searcher>> pesajesErroresZonaInRangeDate(
             @Parameter(description = "Fecha de inicio en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "startDate") String startDate,
@@ -118,7 +115,6 @@ public class PesajesLineaController {
                     content = {@Content(mediaType = "application/json",
                             array = @ArraySchema(schema = @Schema(implementation = Searcher.class)))})
     })
-    @CrossOrigin
     @GetMapping(value = "/listAllPesajesWithErrorsInZoneByDates")
     public ResponseEntity<List<Searcher>> listAllPesajesWithErrorsInZoneByDates(
             @Parameter(description = "Fecha de inicio en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "startDate") String startDate,
@@ -141,7 +137,6 @@ public class PesajesLineaController {
             @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
                     content = {@Content(mediaType = "application/json")})
     })
-    @CrossOrigin
     @GetMapping(value = "/countLotesByDates")
     public ResponseEntity<Integer> countLotesByDates(
             @Parameter(description = "Fecha de inicio en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "startDate") String startDate,
@@ -159,7 +154,6 @@ public class PesajesLineaController {
             @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
                     content = {@Content(mediaType = "application/json")})
     })
-    @CrossOrigin
     @GetMapping(value = "/countErrorsInTagByDates")
     public ResponseEntity<Integer> countErrorsInTagByDates(
             @Parameter(description = "Fecha de inicio en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "startDate") String startDate,
@@ -178,7 +172,6 @@ public class PesajesLineaController {
                     content = {@Content(mediaType = "application/json",
                             array = @ArraySchema(schema = @Schema(implementation = EkPesajesLinea.class)))})
     })
-    @CrossOrigin
     @GetMapping(value = "/findEkPesajesLineaByTag")
     public ResponseEntity<List<EkPesajesLinea>> findEkPesajesLineaByTag(
             @Parameter(description = "Tag del pallet", required = true, in = ParameterIn.QUERY) @RequestParam(value = "tag") String tag){
@@ -190,7 +183,6 @@ public class PesajesLineaController {
             @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
                     content = {@Content(mediaType = "application/json")})
     })
-    @CrossOrigin
     @GetMapping(value = "/countLotesWithErrorsInTagByDates")
     public ResponseEntity<Integer> countLotesWithErrorsByDate(
             @Parameter(description = "Fecha de inicio en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "startDate") String startDate,
@@ -208,7 +200,6 @@ public class PesajesLineaController {
             @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
                     content = {@Content(mediaType = "application/json")})
     })
-    @CrossOrigin
     @GetMapping(value = "/countLotesWithOutErrorsInTagByDates")
     public ResponseEntity<Integer> countLotesWithOutErrorsByDate(
             @Parameter(description = "Fecha de inicio en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "startDate") String startDate,
@@ -226,7 +217,6 @@ public class PesajesLineaController {
             @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
                     content = {@Content(mediaType = "application/json")})
     })
-    @CrossOrigin
     @GetMapping(value = "/countPesajesAfterDate")
     public ResponseEntity<Integer> countPesajesAfterDate(
             @Parameter(description = "Fecha de inicio en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "startDate") String startDate) {
@@ -241,14 +231,32 @@ public class PesajesLineaController {
             @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
                     content = {@Content(mediaType = "application/json")})
     })
-    @CrossOrigin
     @GetMapping(value = "/countEntriesByDates")
     public ResponseEntity<List<EntriesByDate>> countEntriesByDates(){
         return ResponseEntity.ok(pesajesLineaService.countEntriesByDates());
     }
 
+    @Operation(summary = "Realiza un cambio del lote de los registros correspondientes a los tags indicados en una " +
+            "línea específica (llenado o vaciado). Devuelve un JSON con la información de los registros que fueron " +
+            "modificados.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
+                    content = {@Content(mediaType = "application/json")})
+    })
     @PostMapping(value = "/updateLote")
     public ResponseEntity<?> updateLote(@RequestBody UpdateLote updateLoteData){
         return ResponseEntity.ok(pesajesLineaService.updateLote(updateLoteData));
+    }
+
+    @Operation(summary = "Realiza una prueba de cambio del lote de los registros correspondientes a los tags indicados en una " +
+            "línea específica (llenado o vaciado). Devuelve un JSON con la información de los registros que serán " +
+            "modificados de ejecutar la consulta <em>/updateLote.</em>")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
+                    content = {@Content(mediaType = "application/json")})
+    })
+    @PostMapping(value = "/testUpdateLote")
+    public ResponseEntity<?> testUpdateLote(@RequestBody UpdateLote updateLoteData){
+        return ResponseEntity.ok(pesajesLineaService.testUpdateLote(updateLoteData));
     }
 }
