@@ -29,14 +29,12 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        System.out.println("/"+SERVER_URL_PREFIX+"/pesajesLinea/swagger-ui/**");
-        System.out.println("/"+SERVER_URL_PREFIX+"/pesajesLinea/api-docs/**");
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(http -> {
 //                    http.anyRequest().permitAll();
-                    http.requestMatchers("/"+SERVER_URL_PREFIX+"/pesajesLinea/swagger-ui/**").permitAll();
-                    http.requestMatchers("/"+SERVER_URL_PREFIX+"/pesajesLinea/api-docs/**").permitAll();
+                    http.requestMatchers("/"+SERVER_URL_PREFIX+"/swagger-ui/**").permitAll();
+                    http.requestMatchers("/"+SERVER_URL_PREFIX+"/api-docs/**").permitAll();
                     http.requestMatchers("/actuator/**").permitAll();
                     http.anyRequest().authenticated();
                 })

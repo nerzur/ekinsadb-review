@@ -2,6 +2,7 @@ package cu.havanaclub.userservice.controller;
 
 import cu.havanaclub.userservice.model.UserDTO;
 import cu.havanaclub.userservice.service.KeycloakService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,10 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "${server.url.suffix}/keycloak/user")
+@RequestMapping(value = "${server.url.prefix}/keycloak/user")
 @PreAuthorize("hasRole('ADMIN_ROLE')")
+@SecurityRequirement(name = "Bearer Authentication")
+@CrossOrigin
 @Slf4j
 public class KeycloakController {
 
