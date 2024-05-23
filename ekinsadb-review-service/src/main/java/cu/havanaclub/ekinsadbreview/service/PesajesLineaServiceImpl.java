@@ -14,10 +14,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -161,6 +158,13 @@ public class PesajesLineaServiceImpl implements PesajesLineaService {
     @Override
     public List<EntriesByDate> countEntriesByDates() {
         return pesajesLineaRepository.countEntriesByDates();
+    }
+
+    @Override
+    public List<EntriesByDate> countEntriesVaciadoOrLLenadoByDates(boolean isVaciado) {
+        List<EntriesByDate> entriesByDates = pesajesLineaRepository.countEntriesVaciadoOrLLenadoByDates(isVaciado?1:3, isVaciado?2:4);
+        Collections.reverse(entriesByDates);
+        return entriesByDates;
     }
 
     @Override

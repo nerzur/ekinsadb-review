@@ -86,6 +86,15 @@ public interface PesajesLineaRepository extends JpaRepository<EkPesajesLinea, St
     @Query("SELECT new cu.havanaclub.ekinsadbreview.util.EntriesByDate(YEAR(p.fecha), MONTH(p.fecha), COUNT(*)) AS registries FROM EkPesajesLinea p GROUP BY YEAR(p.fecha), MONTH(p.fecha) ORDER BY  YEAR(p.fecha), MONTH(p.fecha)")
     List<EntriesByDate> countEntriesByDates();
 
+    /**
+     * Devuelve la cantidad total de pallets procesados por mes y año teniendo en cuenta la zona. Si se desea buscar en la línea de vaciado utilizar las zonas 1 y 2, en el caso de llenado 3 y 4.
+     * @param zone1 Zona 1 a buscar.
+     * @param zone2 Zona 2 a buscar
+     * @return Cantidades de pallets procesados por mes y año.
+     */
+    @Query("SELECT new cu.havanaclub.ekinsadbreview.util.EntriesByDate(YEAR(p.fecha), MONTH(p.fecha), COUNT(*)) AS registries FROM EkPesajesLinea p where p.idZona = ?1 or p.idZona = ?2  GROUP BY YEAR(p.fecha), MONTH(p.fecha) ORDER BY YEAR(p.fecha) DESC , MONTH(p.fecha) DESC limit 12")
+    List<EntriesByDate> countEntriesVaciadoOrLLenadoByDates(int zone1, int zone2);
+
     List<EkPesajesLinea> findByTagAndNumeroLote(String tag, String numeroLote);
 
 //    @Modifying

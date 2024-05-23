@@ -29,7 +29,7 @@ import java.util.List;
 @RequestMapping(value = "${server.url.prefix}/pesajesLinea")
 @PreAuthorize("hasRole('USER_ROLE')")
 @SecurityRequirement(name = "Bearer Authentication")
-@CrossOrigin
+//@CrossOrigin(origins = "*")
 public class PesajesLineaController {
 
     @Autowired
@@ -238,6 +238,16 @@ public class PesajesLineaController {
     @GetMapping(value = "/countEntriesByDates")
     public ResponseEntity<List<EntriesByDate>> countEntriesByDates(){
         return ResponseEntity.ok(pesajesLineaService.countEntriesByDates());
+    }
+
+    @Operation(summary = "Cantidad de pesajes por meses y años teniendo en cuenta el tipo de operación")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Se ha realizado la consulta correctamente.",
+                    content = {@Content(mediaType = "application/json")})
+    })
+    @GetMapping(value = "/countEntriesVaciadoOrLLenadoByDates/{isVaciado}")
+    public ResponseEntity<List<EntriesByDate>> countEntriesVaciadoOrLLenadoByDates(@PathVariable boolean isVaciado){
+        return ResponseEntity.ok(pesajesLineaService.countEntriesVaciadoOrLLenadoByDates(isVaciado));
     }
 
     @Operation(summary = "Realiza un cambio del lote de los registros correspondientes a los tags indicados en una " +
