@@ -1,14 +1,51 @@
-version: '0.2.0'
+version: '1.0.1'
+name: enkindb-review-backend
 services:
-  registry-service:
-    container_name: ekinsadb-review-v0.2.0
-    hostname: ekinsaDb-review-service
+  admin-service:
+    container_name: admin-service
+    hostname: admin-service
+    build:
+      context: admin-service
+      dockerfile: DockerfileDev
+    image: admin-service:latest
+    ports:
+      - "8086:8086"
+    networks:
+      - public-network
+
+  api-gateway-service:
+    container_name: api-gateway-service
+    hostname: api-gateway-service
+    build:
+      context: api-gateway
+      dockerfile: DockerfileDev
+    image: api-gateway-service:latest
+    ports:
+      - "8090:8090"
+    networks:
+      - public-network
+
+  ekinsadb-review-service:
+    container_name: ekinsadb-review-service
+    hostname: ekinsadb-review-service
     build:
       context: ekinsadb-review-service
-      dockerfile: Dockerfile
+      dockerfile: DockerfileDev
     image: ekinsadb-review-service:latest
     ports:
-      - "8091:8091"
+      - "1000:1000"
+    networks:
+      - public-network
+
+  registry-service:
+    container_name: registry-service
+    hostname: registry-service
+    build:
+      context: registry-service
+      dockerfile: DockerfileDev
+    image: registry-service:latest
+    ports:
+      - "8761:8761"
     networks:
       - public-network
 

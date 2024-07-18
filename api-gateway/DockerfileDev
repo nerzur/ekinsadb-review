@@ -1,0 +1,10 @@
+# DockerFile dor dev environment. This execution needs a previous compilation for the project (using mvn clena package)
+FROM eclipse-temurin:17-jdk-alpine
+RUN addgroup -S demo && adduser -S demo -G demo
+MAINTAINER gabrielpga20@gmail.com
+
+EXPOSE 8090
+
+COPY  /target/api-gateway-service.jar /api-gateway-service/app.jar
+
+ENTRYPOINT ["java", "-jar", "/api-gateway-service/app.jar"]
