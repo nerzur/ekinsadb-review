@@ -40,6 +40,10 @@ public class Verifier {
 //            }
 //        }
         //Verificar si los tags tienen una entrada o salida irregular, o sea, entran y no salen en las lineas o viceversa.
+        /*
+          * TODO Corregir esta búsqueda y hacerla exhaustiva por lote (actualmente se está buscando paridad, se debe
+          * buscar paridad en el lote)
+         */
         int line1 = 0, line2 = 0;
         for (Entry zone : zones) {
             switch (zone.getZone()) {
@@ -64,8 +68,11 @@ public class Verifier {
      * @return Devuelve un <em>boolean</em> indicando si existen errores o no en el listado de lotes.
      */
     public static boolean verifyLote(Searcher searcher) {
+        if(searcher.tag.equals("ZZZZZZZZZZZZZZZZ"))
+//        if(searcher.tag.equals("E00401000F18756D"))
+            System.out.println("ITS HERE");
         if (searcher.getEntriesList().size() % 2 != 0)
-            return true;
+            return false;
         Map<String, Integer> lotesMap = new HashMap<>();
         for (int i = 0; i < searcher.entriesList.size(); i++) {
             switch (searcher.getEntriesList().get(i).getZone()) {

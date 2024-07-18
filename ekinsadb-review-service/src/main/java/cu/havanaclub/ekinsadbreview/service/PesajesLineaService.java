@@ -44,4 +44,8 @@ public interface PesajesLineaService {
     List<EkPesajesLinea> updateLote(@NonNull UpdateLote updateLote);
 
     List<EkPesajesLinea> testUpdateLote(@NonNull UpdateLote updateLote);
+
+    List<String> findDistinctTagByNumeroLote(String numeroLote, boolean isVaciado);
+
+    List<String> findDistinctNumeroLoteByDate(Date startDate, Date endDate);
 }

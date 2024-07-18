@@ -45,10 +45,20 @@ public class PesajesLineaServiceImpl implements PesajesLineaService {
         cal.set(java.util.Calendar.MILLISECOND, 0);
         timestampEnd.setTime(cal.getTime().getTime());
 
+        java.util.Calendar calStart = java.util.Calendar.getInstance();
+        calStart.setTime(timestampStart);
+        calStart.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        calStart.set(java.util.Calendar.MINUTE, 0);
+        calStart.set(java.util.Calendar.SECOND, 0);
+        calStart.set(java.util.Calendar.MILLISECOND, 0);
+        timestampStart.setTime(calStart.getTime().getTime());
+
         List<EkPesajesLinea> pesajesLineaAfterDateList = pesajesLineaRepository.findEkPesajesLineaByFechaBetweenOrderByFecha(timestampStart, timestampEnd);
         Map<String, Searcher> pesajesLineaMap = Searcher.obtainSearcherMap(pesajesLineaAfterDateList);
 
-        pesajesLineaMap.entrySet().removeIf(entry -> Verifier.verifyZone(entry.getValue().getEntriesList()));
+//        pesajesLineaMap.entrySet().removeIf(entry -> Verifier.verifyZone(entry.getValue().getEntriesList()));
+        pesajesLineaMap.entrySet().removeIf(entry -> Verifier.verifyLote(entry.getValue()));
+
         pesajesLineaMap.entrySet().removeIf(entry -> searchErrorsInRegistry(entry.getValue()));
 
         System.out.println("Detected " + pesajesLineaMap.values().size() + " tags with errors.");
@@ -59,7 +69,7 @@ public class PesajesLineaServiceImpl implements PesajesLineaService {
     private boolean searchErrorsInRegistry(Searcher searcher) {
         List<EkPesajesLinea> pesajesByTag = pesajesLineaRepository.findEkPesajesLineaByTagOrderByFecha(searcher.getTag());
         Map<String, Searcher> pesajesLineaMap = Searcher.obtainSearcherMap(pesajesByTag);
-        return Verifier.verifyZone(pesajesLineaMap.get(searcher.getTag()).getEntriesList());
+        return Verifier.verifyLote(pesajesLineaMap.get(searcher.getTag()));
     }
 
     @Override
@@ -193,5 +203,18 @@ public class PesajesLineaServiceImpl implements PesajesLineaService {
             ekPesajesLineaListOutput.add(pesajesLineaRepository.save(ekPesajesLinea));
         });
         return ekPesajesLineaListOutput;
+    }
+
+    @Override
+    public List<String> findDistinctTagByNumeroLote(String numeroLote, boolean isVaciado) {
+        if (isVaciado)
+            return pesajesLineaRepository.findDistinctTagByNumeroLote(numeroLote, 1, 2);
+        else
+            return pesajesLineaRepository.findDistinctTagByNumeroLote(numeroLote, 3, 4);
+    }
+
+    @Override
+    public List<String> findDistinctNumeroLoteByDate(Date startDate, Date endDate) {
+        return pesajesLineaRepository.findDistinctNumeroLoteByDate(startDate, endDate);
     }
 }

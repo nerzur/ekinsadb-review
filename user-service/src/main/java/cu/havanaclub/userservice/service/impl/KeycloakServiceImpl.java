@@ -1,5 +1,6 @@
 package cu.havanaclub.userservice.service.impl;
 
+import cu.havanaclub.userservice.model.UserConfigurations;
 import cu.havanaclub.userservice.model.UserDTO;
 import cu.havanaclub.userservice.service.KeycloakService;
 import cu.havanaclub.userservice.util.KeycloakProvider;
@@ -14,6 +15,10 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -134,9 +139,11 @@ public class KeycloakServiceImpl implements KeycloakService {
     @Override
     public UserRepresentation updateUser(UserDTO userDTO) {
         CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
-        credentialRepresentation.setTemporary(false);
-        credentialRepresentation.setType(OAuth2Constants.PASSWORD);
-        credentialRepresentation.setValue(userDTO.password());
+        if(!userDTO.password().isEmpty()) {
+            credentialRepresentation.setTemporary(false);
+            credentialRepresentation.setType(OAuth2Constants.PASSWORD);
+            credentialRepresentation.setValue(userDTO.password());
+        }
 
         UserRepresentation userRepresentation = new UserRepresentation();
         userRepresentation.setFirstName(userDTO.firstName());
@@ -145,7 +152,9 @@ public class KeycloakServiceImpl implements KeycloakService {
         userRepresentation.setUsername(userDTO.username());
         userRepresentation.setEmailVerified(true);
         userRepresentation.setEnabled(true);
-        userRepresentation.setCredentials(Collections.singletonList(credentialRepresentation));
+
+        if(!userDTO.password().isEmpty())
+            userRepresentation.setCredentials(Collections.singletonList(credentialRepresentation));
 
         List<UserRepresentation> userRepresentations = searchUserByUsername(userDTO.username());
 
@@ -160,4 +169,49 @@ public class KeycloakServiceImpl implements KeycloakService {
             return null;
         return userRepresentations1.get(0);
     }
+
+    @Override
+    public UserDTO getAuthenticatedUserData() {
+        Authentication auth = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+        Jwt principal = (Jwt) auth.getPrincipal();
+
+        UserRepresentation userRepresentations = searchUserByUsername(auth.getName()).get(0);
+
+        if(userRepresentations == null)
+            log.error("An error has been occurred");
+
+        return UserDTO.builder()
+                .username(auth.getName())
+                .email(userRepresentations.getEmail())
+                .firstName(userRepresentations.getFirstName())
+                .lastName(userRepresentations.getLastName())
+                .enabled(userRepresentations.isEmailVerified())
+                .password("RESTRICTED")
+                .roles(auth.getAuthorities().stream()
+                        .map(grantedAuthority -> grantedAuthority.getAuthority().endsWith("_ROLE")?
+                                grantedAuthority.getAuthority().substring(0, grantedAuthority.getAuthority().lastIndexOf("_")):
+                                grantedAuthority.getAuthority())
+                        .toList())
+                .build();
+    }
+
+    @Override
+    public UserConfigurations getUserLang() {
+        UserRepresentation userRepresentation = searchUserByUsername(getAuthenticatedUserData().username()).get(0);
+        return UserConfigurations.builder()
+                .lang(userRepresentation.getAttributes().get("lang").get(0))
+                .build();
+    }
+
+    @Override
+    public void setUserLang(String newLang) {
+        UserRepresentation userRepresentation = searchUserByUsername(getAuthenticatedUserData().username()).get(0);
+        userRepresentation.singleAttribute("lang", newLang);
+        UserResource usersResource = keycloakProvider.getUserResource().get(userRepresentation.getId());
+        usersResource.update(userRepresentation);
+    }
+
+
 }

@@ -273,4 +273,22 @@ public class PesajesLineaController {
     public ResponseEntity<?> testUpdateLote(@RequestBody UpdateLote updateLoteData){
         return ResponseEntity.ok(pesajesLineaService.testUpdateLote(updateLoteData));
     }
+
+    @GetMapping(value = "/findTagsByNúmeroLote")
+    public ResponseEntity<?> findDistinctTagByNumeroLote(@RequestParam String numeroLote, @RequestParam boolean isVaciado){
+        return ResponseEntity.ok(pesajesLineaService.findDistinctTagByNumeroLote(numeroLote, isVaciado));
+    }
+
+    @GetMapping(value = "/findNumeroLoteByDate")
+    public ResponseEntity<?> findDistinctNumeroLoteByDate(
+            @Parameter(description = "Fecha de inicio en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "startDate") String startDate,
+            @Parameter(description = "Fecha de fin en formato yyyy-MM-dd", required = true, in = ParameterIn.QUERY) @RequestParam(value = "endDate") String endDate){
+        long millis = Date.valueOf(startDate).getTime();
+        java.sql.Date d1 = new java.sql.Date(millis);
+
+        long millis1 = Date.valueOf(endDate).getTime();
+        java.sql.Date d2 = new java.sql.Date(millis1);
+
+        return ResponseEntity.ok(pesajesLineaService.findDistinctNumeroLoteByDate(d1, d2));
+    }
 }

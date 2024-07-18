@@ -15,16 +15,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "${server.url.prefix}/user")
 @PreAuthorize("isAuthenticated()")
 @SecurityRequirement(name = "Bearer Authentication")
-@CrossOrigin
 @Slf4j
 public class AuthInfoController {
 
@@ -37,30 +33,30 @@ public class AuthInfoController {
                     content = {@Content(mediaType = "application/json")})
     })
     @GetMapping()
-    public ResponseEntity<?> getUsername() {
-        Authentication auth = SecurityContextHolder
-                .getContext()
-                .getAuthentication();
-        Jwt principal = (Jwt) auth.getPrincipal();
-
-        UserRepresentation userRepresentations = keycloakService.searchUserByUsername(auth.getName()).get(0);
-
-        if(userRepresentations == null)
-            log.error("An error has been occurred");
-
-        UserDTO jwtUser = UserDTO.builder()
-                .username(auth.getName())
-                .email(principal.getClaim("email"))
-                .firstName(userRepresentations.getFirstName())
-                .lastName(userRepresentations.getLastName())
-                .enabled(userRepresentations.isEnabled())
-                .password("RESTRICTED")
-                .roles(auth.getAuthorities().stream()
-                        .map(grantedAuthority -> grantedAuthority.getAuthority().endsWith("_ROLE")?
-                                grantedAuthority.getAuthority().substring(0, grantedAuthority.getAuthority().lastIndexOf("_")):
-                                grantedAuthority.getAuthority())
-                        .toList())
-                .build();
-        return ResponseEntity.ok(jwtUser);
+    public ResponseEntity<?> getAuthenticatedUserInfo() {
+        return ResponseEntity.ok(keycloakService.getAuthenticatedUserData());
     }
+
+    @PostMapping(value = "/changeUserInformation")
+    public ResponseEntity<?> changeUserInformation(@RequestBody UserDTO newUserInformation){
+        UserDTO authenticatedUserData = keycloakService.getAuthenticatedUserData();
+        if(!authenticatedUserData.username().equals(newUserInformation.username())){
+            return ResponseEntity
+                    .badRequest()
+                    .body("The username provided does not match with the authenticated user.");
+        }
+        return ResponseEntity.ok(keycloakService.updateUser(newUserInformation));
+    }
+
+    @GetMapping(value = "/getUserLang")
+    public ResponseEntity<?> getUserLang(){
+        return ResponseEntity.ok(keycloakService.getUserLang());
+    }
+
+    @PostMapping(value = "/setUserLang/{newLang}")
+    public ResponseEntity<?> setUserLang(@PathVariable String newLang){
+        keycloakService.setUserLang(newLang);
+        return ResponseEntity.ok(keycloakService.getUserLang());
+    }
+
 }
