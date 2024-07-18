@@ -30,7 +30,7 @@ public class CsvWriter {
         File dir = new File(logStorageDir);
         dir.mkdirs();
         PrintWriter writer = new PrintWriter(logStorageDir + filename + " " + formattedDate + ".csv");
-        writer.println("#,Tag,Date,Lote,Weight,Zone");
+        writer.println("#,Tag,Date,Lote,Folio,Weight,Zone");
 
         for (int i = 0; i < searcherList.size(); i++) {
             Searcher searcher = searcherList.get(i);

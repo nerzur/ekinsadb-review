@@ -16,4 +16,5 @@ public class Entry {
     Integer weigth;
     Timestamp date;
     String lote;
+    String invoice;
 }

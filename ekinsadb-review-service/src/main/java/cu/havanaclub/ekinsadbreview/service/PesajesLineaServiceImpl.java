@@ -113,6 +113,7 @@ public class PesajesLineaServiceImpl implements PesajesLineaService {
                             .lote(ekPesajesLinea.getNumeroLote())
                             .weigth(ekPesajesLinea.getPeso())
                             .date(ekPesajesLinea.getFecha())
+                            .invoice(ekPesajesLinea.getFolio())
                             .build()
             );
         }

@@ -55,7 +55,7 @@ public class Searcher {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         for (int i = 0; i < countEntries; i++) {
             String formattedDate = formatter.format(entriesList.get(i).date);
-            line.append(",").append(tag).append(",").append(formattedDate).append(",").append(entriesList.get(i).lote).append(",").append(entriesList.get(i).weigth).append(",").append(entriesList.get(i).zone).append("\n");
+            line.append(",").append(tag).append(",").append(formattedDate).append(",").append(entriesList.get(i).lote).append(",").append(entriesList.get(i).invoice).append(",").append(entriesList.get(i).weigth).append(",").append(entriesList.get(i).zone).append("\n");
             text.append(line);
             line = new StringBuilder();
         }
@@ -77,6 +77,7 @@ public class Searcher {
                         .weigth(ekPesajesLinea.getPeso())
                         .date(ekPesajesLinea.getFecha())
                         .lote(ekPesajesLinea.getNumeroLote())
+                        .invoice(ekPesajesLinea.getFolio())
                         .zone(ekPesajesLinea.getIdZona())
                         .build());
                 pesajesLineaMap.put(ekPesajesLinea.getTag(),
@@ -96,6 +97,7 @@ public class Searcher {
                                 .date(ekPesajesLinea.getFecha())
                                 .lote(ekPesajesLinea.getNumeroLote())
                                 .zone(ekPesajesLinea.getIdZona())
+                                .invoice(ekPesajesLinea.getFolio())
                                 .build()
                 );
                 pesajesLineaMap.replace(ekPesajesLinea.getTag(), searched);
