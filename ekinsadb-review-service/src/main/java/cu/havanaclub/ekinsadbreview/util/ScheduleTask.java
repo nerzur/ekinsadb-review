@@ -1,6 +1,5 @@
 package cu.havanaclub.ekinsadbreview.util;
 
-import cu.havanaclub.ekinsadbreview.controller.PesajesLineaController;
 import cu.havanaclub.ekinsadbreview.service.PesajesLineaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -8,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.sql.Date;
-import java.util.List;
 
 /**
  * This class contains the scheduled task to search errors in tag and lotes every 1 day.

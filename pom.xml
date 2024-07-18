@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cu.havanaclub</groupId>
     <artifactId>ekinsadb-review-backend</artifactId>
-    <version>0.1.0-alpha</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
     <properties>
         <java.version>18</java.version>

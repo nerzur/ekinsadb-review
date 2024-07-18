@@ -16,6 +16,7 @@ public class Verifier {
      * registros teniendo en cuenta que por cada registro realizado que tiene como zona 1 deberá existir otro registro
      * que deberá tener como zona 2 y de igual forma con las zonas 3 y 4.
      * @param zones Lista de zonas que será procesada.
+     * @deprecated Esta función no es funcional debido a que no encuentra todos los errores de entrada y salida.
      * @return Devuelve un <em>boolean</em> indicando si existen errores o no en el listado de zonas.
      */
     public static boolean verifyZone(List<Entry> zones) {
@@ -40,10 +41,6 @@ public class Verifier {
 //            }
 //        }
         //Verificar si los tags tienen una entrada o salida irregular, o sea, entran y no salen en las lineas o viceversa.
-        /*
-          * TODO Corregir esta búsqueda y hacerla exhaustiva por lote (actualmente se está buscando paridad, se debe
-          * buscar paridad en el lote)
-         */
         int line1 = 0, line2 = 0;
         for (Entry zone : zones) {
             switch (zone.getZone()) {
@@ -68,9 +65,6 @@ public class Verifier {
      * @return Devuelve un <em>boolean</em> indicando si existen errores o no en el listado de lotes.
      */
     public static boolean verifyLote(Searcher searcher) {
-        if(searcher.tag.equals("ZZZZZZZZZZZZZZZZ"))
-//        if(searcher.tag.equals("E00401000F18756D"))
-            System.out.println("ITS HERE");
         if (searcher.getEntriesList().size() % 2 != 0)
             return false;
         Map<String, Integer> lotesMap = new HashMap<>();
@@ -92,7 +86,6 @@ public class Verifier {
                     else
                         lotesMap.replace(searcher.getEntriesList().get(i).getLote(), lotesMap.get(searcher.getEntriesList().get(i).getLote()) - 1);
                     break;
-
             }
         }
         return lotesMap.values().isEmpty();
