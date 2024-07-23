@@ -200,9 +200,12 @@ public class KeycloakServiceImpl implements KeycloakService {
     @Override
     public UserConfigurations getUserLang() {
         UserRepresentation userRepresentation = searchUserByUsername(getAuthenticatedUserData().username()).get(0);
-        return UserConfigurations.builder()
+        if(userRepresentation.getAttributes().get("lang")==null || userRepresentation.getAttributes().get("lang").isEmpty())
+            setUserLang("es");
+        UserConfigurations uc = UserConfigurations.builder()
                 .lang(userRepresentation.getAttributes().get("lang").get(0))
                 .build();
+        return uc;
     }
 
     @Override
